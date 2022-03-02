@@ -22,13 +22,22 @@ public class AppController {
     private ComboBox<String> choose;
 
     @FXML
+    private ComboBox<String> choose1;
+
+    @FXML
     private Button show;
+
+    @FXML
+    private Button show1;
     
     @FXML
     private Label error1;
 
     @FXML
     private Label error11;
+
+    @FXML
+    private Label error111;
 
     @FXML
     private Label out;
@@ -38,6 +47,15 @@ public class AppController {
 
     @FXML
     private Spinner<Integer> stop;
+
+    @FXML
+    private Label out1;
+
+    @FXML
+    private Spinner<Integer> start1;
+
+    @FXML
+    private Spinner<Integer> stop1;
 
     @FXML
     private Button btn1;
@@ -77,15 +95,21 @@ public class AppController {
 
     @FXML
     void initialize() {
+        out.setText("");
         error1.setVisible(false);
         error11.setVisible(false);
 
-        choose.setItems( FXCollections.observableArrayList("A", "B", "C", "A1", "B1", "C1", "D1", "E1"));
+        choose.setItems( FXCollections.observableArrayList("A", "A1", "Изначальный файл"));
+
+        choose1.setItems( FXCollections.observableArrayList("A", "A1", "Изначальный файл"));
 
         spinnerLength.setEditable(true);
 
         stop.setEditable(true);
         start.setEditable(true);
+
+        stop1.setEditable(true);
+        start1.setEditable(true);
 
         nameSorting.setCellValueFactory(new PropertyValueFactory<InfoAboutSort, String>("nameSorting"));
         countCompare.setCellValueFactory(new PropertyValueFactory<InfoAboutSort, Long>("countCompare"));
@@ -149,26 +173,47 @@ public class AppController {
                 case "A":
                     out.setText(readFile("a.txt", start.getValue(), stop.getValue()));
                     break;
-                case "B":
-                    out.setText(readFile("b.txt", start.getValue(), stop.getValue()));
-                    break;
-                case "C":
-                    out.setText(readFile("c.txt", start.getValue(), stop.getValue()));
+                case "Изначальный файл":
+                    out.setText(readFile("tmp.txt", start.getValue(), stop.getValue()));
                     break;
                 case "A1":
                     out.setText(readFile("a1.txt", start.getValue(), stop.getValue()));
                     break;
-                case "B1":
-                    out.setText(readFile("b1.txt", start.getValue(), stop.getValue()));
+            }
+        });
+
+        show1.addEventHandler(MouseEvent.MOUSE_CLICKED, e ->{
+            out1.setText("");
+            try {
+                if (!isDigit(stop1.getValue().toString()) || !isDigit(start1.getValue().toString())) {
+                    error111.setText("Введите целые положительные числа");
+                    error111.setVisible(true);
+                    return;
+                }
+            }catch (NumberFormatException ee){
+                error111.setText("Введите целые положительные числа");
+                error111.setVisible(true);
+            }
+            if (start1.getValue()==0|| stop1.getValue()==0){
+                error111.setText("Числа должны быть больше 0");
+                error111.setVisible(true);
+                return;
+            }
+            if (start1.getValue()>= stop1.getValue()){
+                error11.setText("Первое число должно быть меньше второго");
+                error11.setVisible(true);
+                return;
+            }
+            error111.setVisible(false);
+            switch (choose1.getValue()){
+                case "A":
+                    out1.setText(readFile("a.txt", start1.getValue(), stop1.getValue()));
                     break;
-                case "C1":
-                    out.setText(readFile("c1.txt", start.getValue(), stop.getValue()));
+                case "Изначальный файл":
+                    out1.setText(readFile("tmp.txt", start1.getValue(), stop1.getValue()));
                     break;
-                case "D1":
-                    out.setText(readFile("d1.txt", start.getValue(), stop.getValue()));
-                    break;
-                case "E1":
-                    out.setText(readFile("e1.txt", start.getValue(), stop.getValue()));
+                case "A1":
+                    out1.setText(readFile("a1.txt", start1.getValue(), stop1.getValue()));
                     break;
             }
         });
@@ -177,11 +222,11 @@ public class AppController {
     private String readFile(String name, int start, int stop){
         try {
             InputStream reader = new FileInputStream(name);
-            for (int i = 0; i < start; i++) {
+            for (int i = 1; i < start; i++) {
                 getNumber(reader);
             }
             StringBuilder stringBuilder = new StringBuilder();
-            for (int i = 0; i < stop - start; i++) {
+            for (int i = 0; i <= stop - start; i++) {
                 int a=  getNumber(reader);
                 if (a!= -1)
                 stringBuilder.append(a+", ");
@@ -214,7 +259,7 @@ public class AppController {
     private void generateFileForDemo() {
         try (FileWriter writer = new FileWriter("a2.txt")) {
             for (int i = 0; i < 15; i++) {
-                writer.write(random.nextInt(10000) + " ");
+                writer.write(random.nextInt(100) + " ");
             }
             writer.flush();
         } catch (IOException e) {
