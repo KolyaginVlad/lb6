@@ -98,6 +98,7 @@ public class AppController {
         out.setText("");
         error1.setVisible(false);
         error11.setVisible(false);
+        error111.setVisible(false);
 
         choose.setItems( FXCollections.observableArrayList("A", "A1", "Изначальный файл"));
 
