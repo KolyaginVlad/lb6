@@ -95,9 +95,11 @@ public class AppController {
 
     @FXML
     void initialize() {
+        out1.setText("");
         out.setText("");
         error1.setVisible(false);
         error11.setVisible(false);
+        error111.setVisible(false);
 
         choose.setItems( FXCollections.observableArrayList("A", "A1", "Изначальный файл"));
 
@@ -119,12 +121,12 @@ public class AppController {
 
         btn1.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
             generateFileForDemo();
-            fillTable(table1, SolutionWithInfo::simple1);
+            fillTable(table1, SolutionWithInfo::natural1);
         });
 
         btn2.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
             generateFileForDemo();
-            fillTable(table2, SolutionWithInfo::simple2);
+            fillTable(table2, SolutionWithInfo::natural2);
         });
 
         btnInfo.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
@@ -137,11 +139,11 @@ public class AppController {
             infoTable.getItems().clear();
             ObservableList<InfoAboutSort> rows = FXCollections.observableArrayList();
 
-            long[] simple2 = Solution.simple2(spinnerLength.getValue());
-            long[] simple1 = Solution.simple1(spinnerLength.getValue());
+            long[] simple2 = Solution.natural2();
+            long[] natural1 = Solution.natural1();
 
             rows.add(InfoAboutSort.create("Двухфазная", simple2));
-            rows.add(InfoAboutSort.create("Однофазная", simple1));
+            rows.add(InfoAboutSort.create("Однофазная", natural1));
 
             infoTable.setItems(rows);
         });

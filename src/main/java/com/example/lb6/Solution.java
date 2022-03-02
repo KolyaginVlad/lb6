@@ -12,119 +12,284 @@ public class Solution {
     static Long read = 0L;
     static Long write = 0L;
 
-    public static long[] simple2(long count) {
+    public static long[] natural2() {
         long time = System.currentTimeMillis();
         countCompare = 0L;
         read = 0L;
         write = 0L;
         try {
-            for (long i = 1; i < count; i *= 2) {
-                simpleSortSplit(i);
-                simpleSortCombine(i);
-            }
+            do {
+                naturalSortSplit();
+            } while (naturalSortCombine());
         } catch (IOException e) {
             e.printStackTrace();
         }
         return new long[]{countCompare, read, write, System.currentTimeMillis() - time};
     }
 
-    public static long[] simple1(long count) {
+    public static long[] natural1() {
         long time = System.currentTimeMillis();
         countCompare = 0L;
         read = 0L;
         write = 0L;
         try {
-            toTwoFiles();
+            toTwoFilesNatural();
             boolean direction = true;
-            for (long i = 1; i < count / 2; i *= 2) {
+            boolean flag = true;
+            while (flag) {
                 if (direction) {
-                    switchFiles(i, b, c, d, e);
+                    flag = switchFilesNatural(b, c, d, e);
                     direction = false;
                 } else {
-                    switchFiles(i, d, e, b, c);
+                    flag = switchFilesNatural(d, e, b, c);
                     direction = true;
                 }
             }
             if (direction)
-                toOneFile(count, b, c);
+                toOneFileNatural(b, c);
             else
-                toOneFile(count, d, e);
-        } catch (IOException exception) {
-            exception.printStackTrace();
+                toOneFileNatural(d, e);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return new long[]{countCompare, read, write, System.currentTimeMillis() - time};
     }
 
-    private static void simpleSortSplit(long len ) throws IOException {
+    private static void naturalSortSplit() throws IOException {
         PrintWriter writerToB = new PrintWriter(new FileWriter("b.txt"));
         PrintWriter writerToC = new PrintWriter(new FileWriter("c.txt"));
         InputStream readerA = new FileInputStream("a.txt");
-        long curLen = len;
-        int dir = 0;
-        while (readerA.available() != 0) {
-            int elem = getNumber(readerA);
+        int num = getNumber(readerA);
+        read++;
+        boolean dir = true;
+        int last = -1;
+        while (num != -1) {
+            countCompare++;
+            if (num < last) {
+                if (dir) {
+                    dir = false;
+                    writerToC.write(num + " ");
+                } else {
+                    dir = true;
+                    writerToB.write(num + " ");
+                }
+                write++;
+            } else {
+                write++;
+                if (dir) {
+                    writerToB.write(num + " ");
+                } else {
+                    writerToC.write(num + " ");
+                }
+            }
+            last = num;
+            num = getNumber(readerA);
             read++;
-            if (curLen > 0) {
-                curLen--;
-            } else {
-                dir = dir == 0 ? 1 : 0;
-                curLen = len - 1;
-            }
-            write++;
-            if (dir == 0) {
-                writerToB.write(elem + " ");
-            } else {
-                writerToC.write(elem + " ");
-            }
         }
         writerToB.flush();
-        writerToC.flush();
         writerToB.close();
+        writerToC.flush();
         writerToC.close();
         readerA.close();
     }
 
-    private static void simpleSortCombine(long len ) throws IOException {
+    private static boolean naturalSortCombine() throws IOException {
         PrintWriter writerToA = new PrintWriter(new FileWriter("a.txt"));
         InputStream readerB = new FileInputStream("b.txt");
         InputStream readerC = new FileInputStream("c.txt");
         int first = getNumber(readerB);
         int second = getNumber(readerC);
+        int lastFirst = -1;
+        int lastSecond = -1;
+        read+=2;
+        int counter = 0;
         while (first != -1 || second != -1) {
-            long curB = len;
-            long curC = len;
-            while (curB != 0 && curC != 0 && first != -1 && second != -1) {
+            while (first != -1 && second != -1 && first >= lastFirst && second >= lastSecond) {
                 countCompare++;
-                write++;
-                read++;
                 if (first < second) {
                     writerToA.write(first + " ");
-                    curB--;
+                    lastFirst = first;
                     first = getNumber(readerB);
                 } else {
                     writerToA.write(second + " ");
-                    curC--;
+                    lastSecond = second;
                     second = getNumber(readerC);
                 }
-            }
-            while (curB != 0 && first != -1) {
-                write++;
                 read++;
+                write++;
+            }
+            counter++;
+            while (first != -1 && first >= lastFirst) {
                 writerToA.write(first + " ");
-                curB--;
+                lastFirst = first;
                 first = getNumber(readerB);
-            }
-            while (curC != 0 && second != -1) {
-                write++;
                 read++;
-                writerToA.write(second + " ");
-                curC--;
-                second = getNumber(readerC);
+                write++;
             }
+            while (second != -1 && second >= lastSecond) {
+                writerToA.write(second + " ");
+                lastSecond = second;
+                second = getNumber(readerC);
+                read++;
+                write++;
+            }
+            lastFirst = -1;
+            lastSecond = -1;
+            read+=2;
         }
         writerToA.flush();
+        writerToA.close();
         readerB.close();
         readerC.close();
+        return counter > 1;
+    }
+
+    private static boolean switchFilesNatural(String firstToRead, String secondToRead, String firstToWrite, String secondToWrite) throws IOException {
+        PrintWriter writerToFirst = new PrintWriter(new FileWriter(firstToWrite));
+        PrintWriter writerToSecond = new PrintWriter(new FileWriter(secondToWrite));
+        InputStream readerFromFirst = new FileInputStream(firstToRead);
+        InputStream readerFromSecond = new FileInputStream(secondToRead);
+        boolean direction = true;
+        int counter = 0;
+        int first = getNumber(readerFromFirst);
+        int second = getNumber(readerFromSecond);
+        int lastFirst = -1;
+        int lastSecond = -1;
+        read+=2;
+        while (first != -1 || second != -1) {
+            while (first != -1 && second != -1 && first >= lastFirst && second >= lastSecond) {
+                countCompare++;
+                if (first < second) {
+                    if (direction) {
+                        writerToFirst.write(first + " ");
+                    } else {
+                        writerToSecond.write(first + " ");
+                    }
+                    lastFirst = first;
+                    first = getNumber(readerFromFirst);
+                } else {
+                    if (direction) {
+                        writerToFirst.write(second + " ");
+                    } else {
+                        writerToSecond.write(second + " ");
+                    }
+                    lastSecond = second;
+                    second = getNumber(readerFromSecond);
+                }
+                read++;
+                write++;
+            }
+            while (first != -1 && first >= lastFirst) {
+                if (direction)
+                    writerToFirst.write(first + " ");
+                else writerToSecond.write(first + " ");
+                lastFirst = first;
+                first = getNumber(readerFromFirst);
+                read++;
+                write++;
+            }
+            while (second != -1 && second >= lastSecond) {
+                if (direction)
+                    writerToFirst.write(second + " ");
+                else writerToSecond.write(second + " ");
+                lastSecond = second;
+                second = getNumber(readerFromSecond);
+                read++;
+                write++;
+            }
+            lastFirst = -1;
+            lastSecond = -1;
+            read++;
+            direction = !direction;
+            counter++;
+        }
+        writerToFirst.flush();
+        writerToSecond.flush();
+        writerToFirst.close();
+        writerToSecond.close();
+        return counter > 2;
+    }
+
+    private static void toOneFileNatural(String firstFile, String secondFile) throws IOException {
+        PrintWriter writer = new PrintWriter(new FileWriter(a));
+        InputStream readerFromFirstFile = new FileInputStream(firstFile);
+        InputStream readerFromSecondFile = new FileInputStream(secondFile);
+        int first = getNumber(readerFromFirstFile);
+        int second = getNumber(readerFromSecondFile);
+        int lastFirst = -1;
+        int lastSecond = -1;
+        read+=2;
+        while (first != -1 || second != -1) {
+            while (first != -1 && second != -1 && first >= lastFirst && second >= lastSecond) {
+                countCompare++;
+                if (first < second) {
+                    writer.write(first + " ");
+                    lastFirst = first;
+                    first = getNumber(readerFromFirstFile);
+                } else {
+                    writer.write(second + " ");
+                    lastSecond = second;
+                    second = getNumber(readerFromSecondFile);
+                }
+                read++;
+                write++;
+            }
+            while (first != -1 && first >= lastFirst) {
+                writer.write(first + " ");
+                lastFirst = first;
+                first = getNumber(readerFromFirstFile);
+                read++;
+                write++;
+            }
+            while (second != -1 && second >= lastSecond) {
+                writer.write(second + " ");
+                lastSecond = second;
+                second = getNumber(readerFromSecondFile);
+                read++;
+                write++;
+            }
+            lastSecond = -1;
+            lastFirst = -1;
+            read+=2;
+        }
+        writer.flush();
+        writer.close();
+    }
+
+    private static void toTwoFilesNatural() throws IOException {
+        PrintWriter writerToFirstFile = new PrintWriter(new FileWriter(b));
+        PrintWriter writerToSecondFile = new PrintWriter(new FileWriter(c));
+        InputStream reader = new FileInputStream(a);
+        int num = getNumber(reader);
+        read++;
+        boolean direction = true;
+        int last = -1;
+        while (num != -1) {
+            countCompare++;
+            if (num < last) {
+                if (direction) {
+                    direction = false;
+                    writerToSecondFile.write(num + " ");
+                } else {
+                    direction = true;
+                    writerToFirstFile.write(num + " ");
+                }
+            } else {
+                if (direction) {
+                    writerToFirstFile.write(num + " ");
+                } else {
+                    writerToSecondFile.write(num + " ");
+                }
+            }
+            write++;
+            last = num;
+            num = getNumber(reader);
+            read++;
+        }
+        writerToFirstFile.flush();
+        writerToFirstFile.close();
+        writerToSecondFile.flush();
+        writerToSecondFile.close();
     }
 
     private static int getNumber(InputStream reader) throws IOException {
@@ -139,125 +304,5 @@ public class Solution {
             }
         }
         return -1;
-    }
-
-    private static void toTwoFiles( ) throws IOException {
-        PrintWriter writerToFirstFile = new PrintWriter(new FileWriter(b));
-        PrintWriter writerToSecondFile = new PrintWriter(new FileWriter(c));
-        InputStream readerA = new FileInputStream(a);
-        boolean direction = true;
-        int elem = getNumber(readerA);
-        while (elem != -1) {
-            read++;
-            write++;
-            if (direction) {
-                writerToFirstFile.write(elem + " ");
-                direction = false;
-            } else {
-                writerToSecondFile.write(elem + " ");
-                direction = true;
-            }
-            elem = getNumber(readerA);
-        }
-        writerToFirstFile.flush();
-        writerToSecondFile.flush();
-        writerToFirstFile.close();
-        writerToSecondFile.close();
-    }
-    private static void toOneFile(long count, String firstFileToRead, String secondFileToRead ) throws IOException {
-        PrintWriter writer = new PrintWriter(new FileWriter(a));
-        InputStream readerFirst = new FileInputStream(firstFileToRead);
-        InputStream readerSecond = new FileInputStream(secondFileToRead);
-        int first = getNumber(readerFirst);
-        int second = getNumber(readerSecond);
-        while (first != -1 || second != -1) {
-            long localFirst = count;
-            long localSecond = count;
-            while (localFirst != 0 && localSecond != 0 && first != -1 && second != -1) {
-                countCompare++;
-                read++;
-                write++;
-                if (first < second) {
-                    writer.write(first + " ");
-                    localFirst--;
-                    first = getNumber(readerFirst);
-                } else {
-                    writer.write(second + " ");
-                    localSecond--;
-                    second = getNumber(readerSecond);
-                }
-            }
-            while (localFirst != 0 && first != -1) {
-                read++;
-                write++;
-                writer.write(first + " ");
-                localFirst--;
-                first = getNumber(readerFirst);
-            }
-            while (localSecond != 0 && second != -1) {
-                read++;
-                write++;
-                writer.write(second + " ");
-                localSecond--;
-                second = getNumber(readerSecond);
-            }
-        }
-        writer.flush();
-    }
-    private static void switchFiles(long count, String firstToRead, String secondToRead, String firstToWrite, String secondToWrite ) throws IOException {
-        PrintWriter writerToFirstFile = new PrintWriter(new FileWriter(firstToWrite));
-        PrintWriter writerToSecondFile = new PrintWriter(new FileWriter(secondToWrite));
-        InputStream readerFirst = new FileInputStream(firstToRead);
-        InputStream readerSecond = new FileInputStream(secondToRead);
-        boolean direction = true;
-        int first = getNumber(readerFirst);
-        int second = getNumber(readerSecond);
-        while (first != -1 || second != -1) {
-            long localFirst = count;
-            long localSecond = count;
-            while (localFirst != 0 && localSecond != 0 && first != -1 && second != -1) {
-                countCompare++;
-                write++;
-                read++;
-                if (first < second) {
-                    if (direction)
-                        writerToFirstFile.write(first + " ");
-                    else writerToSecondFile.write(first + " ");
-                    localFirst--;
-                    first = getNumber(readerFirst);
-                } else {
-                    if (direction)
-                        writerToFirstFile.write(second + " ");
-                    else writerToSecondFile.write(second + " ");
-                    localSecond--;
-                    second = getNumber(readerSecond);
-                }
-            }
-            while (localFirst != 0 && first != -1) {
-                write++;
-                read++;
-                if (direction)
-                    writerToFirstFile.write(first + " ");
-                else writerToSecondFile.write(first + " ");
-                localFirst--;
-                first = getNumber(readerFirst);
-            }
-            while (localSecond != 0 && second != -1) {
-                write++;
-                read++;
-                if (direction)
-                    writerToFirstFile.write(second + " ");
-                else writerToSecondFile.write(second + " ");
-                localSecond--;
-                second = getNumber(readerSecond);
-            }
-            if (direction) {
-                direction = false;
-            } else direction = true;
-        }
-        writerToFirstFile.flush();
-        writerToFirstFile.close();
-        writerToSecondFile.flush();
-        writerToSecondFile.close();
     }
 }
