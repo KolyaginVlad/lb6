@@ -16,8 +16,7 @@ public class SolutionWithInfo {
         List<List<String>> steps = new ArrayList<>();
         try {
             steps.add(readFile(a));
-            splitAndSort();
-            // toTwoFilesNatural();
+            splitAndSort(3);
             steps.add(readFile(b));
             steps.add(readFile(c));
             boolean direction = true;
@@ -174,19 +173,18 @@ public class SolutionWithInfo {
         writerToSecondFile.close();
     }
 
-    private static void splitAndSort() throws IOException {
+    private static void splitAndSort(int sizeBuffer) throws IOException {
         PrintWriter writerToFirstFile = new PrintWriter(new FileWriter(b));
         PrintWriter writerToSecondFile = new PrintWriter(new FileWriter(c));
         InputStream reader = new FileInputStream(a);
 
         int num = getNumber(reader);
-
-        int k = 3;
-        int[] buffer = new int[k];
+        
+        int[] buffer = new int[sizeBuffer];
         boolean direction = true;
         while (num != -1) {
             int i = 0;
-            for(; i < k && num != -1; i++) {
+            for(; i < sizeBuffer && num != -1; i++) {
                 buffer[i] = num;
                 num = getNumber(reader);
             }

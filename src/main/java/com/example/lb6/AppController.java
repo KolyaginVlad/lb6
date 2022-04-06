@@ -128,11 +128,33 @@ public class AppController {
             infoTable.getItems().clear();
             ObservableList<InfoAboutSort> rows = FXCollections.observableArrayList();
             
-            long[] natural1 = Solution.natural1();
-            
-            rows.add(InfoAboutSort.create("Однофазная", natural1));
+            File file = new File("tmp.txt");
+            long fileSizeBytes = file.length();
 
-            infoTable.setItems(rows);
+            int i1 = (int) (fileSizeBytes / 100);
+            int i2 = i1 * 10;
+            for(int i = i1, k = 1; i <= i2; i += i1, k++){
+                long[] natural1 = Solution.natural1(i);
+                try {
+                    cloneFile("b" + k + ".txt");
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+                rows.add(InfoAboutSort.create("Однофазная " + k, natural1));
+                infoTable.setItems(rows);
+            }
+
+            // long[] natural1 = Solution.natural1(30);
+            // rows.add(InfoAboutSort.create("Однофазная " + 30, natural1));
+            // infoTable.setItems(rows);
+
+            // natural1 = Solution.natural1(50);
+            // rows.add(InfoAboutSort.create("Однофазная " + 50, natural1));
+            // infoTable.setItems(rows);
+
+            // natural1 = Solution.natural1(70);
+            // rows.add(InfoAboutSort.create("Однофазная " + 70, natural1));
+            // infoTable.setItems(rows);
         });
         
         show.addEventHandler(MouseEvent.MOUSE_CLICKED, e ->{
@@ -281,6 +303,19 @@ public class AppController {
         writerToA.close();
         writerToA1.flush();
         writerToA1.close();
+        reader.close();
+    }
+
+    private void cloneFile(String toFile) throws IOException {
+        PrintWriter writerToFile = new PrintWriter(new FileWriter("b1b10/" + toFile));
+        InputStream reader = new FileInputStream("a1.txt");
+        int num = getNumber(reader);
+        while (num != -1) {
+            writerToFile.write( num +" ");
+            num = getNumber(reader);
+        }
+        writerToFile.flush();
+        writerToFile.close();
         reader.close();
     }
 

@@ -23,18 +23,19 @@ public class Solution {
                     temp = numArray[j - 1];
                     numArray[j - 1] = numArray[j];
                     numArray[j] = temp;
+                    countCompare++;
                 }
             }
         }
     }
 
-    public static long[] natural1() {
+    public static long[] natural1(int sizeBuffer) {
         long time = System.currentTimeMillis();
         countCompare = 0L;
         read = 0L;
         write = 0L;
         try {
-            splitAndSort();
+            splitAndSort(sizeBuffer);
             boolean direction = true;
             boolean flag = true;
             while (flag) {
@@ -168,43 +169,7 @@ public class Solution {
         writer.close();
     }
 
-    private static void toTwoFilesNatural() throws IOException {
-        PrintWriter writerToFirstFile = new PrintWriter(new FileWriter(b));
-        PrintWriter writerToSecondFile = new PrintWriter(new FileWriter(c));
-        InputStream reader = new FileInputStream(a);
-        int num = getNumber(reader);
-        read++;
-        boolean direction = true;
-        int last = -1;
-        while (num != -1) {
-            countCompare++;
-            if (num < last) {
-                if (direction) {
-                    direction = false;
-                    writerToSecondFile.write(num + " ");
-                } else {
-                    direction = true;
-                    writerToFirstFile.write(num + " ");
-                }
-            } else {
-                if (direction) {
-                    writerToFirstFile.write(num + " ");
-                } else {
-                    writerToSecondFile.write(num + " ");
-                }
-            }
-            write++;
-            last = num;
-            num = getNumber(reader);
-            read++;
-        }
-        writerToFirstFile.flush();
-        writerToFirstFile.close();
-        writerToSecondFile.flush();
-        writerToSecondFile.close();
-    }
-
-    private static void splitAndSort() throws IOException {
+    private static void splitAndSort(int sizeBuffer) throws IOException {
         PrintWriter writerToFirstFile = new PrintWriter(new FileWriter(b));
         PrintWriter writerToSecondFile = new PrintWriter(new FileWriter(c));
         InputStream reader = new FileInputStream(a);
@@ -212,12 +177,11 @@ public class Solution {
         int num = getNumber(reader);
         read++;
 
-        int k = 3;
-        int[] buffer = new int[k];
+        int[] buffer = new int[sizeBuffer];
         boolean direction = true;
         while (num != -1) {
             int i = 0;
-            for(; i < k && num != -1; i++) {
+            for(; i < sizeBuffer && num != -1; i++) {
                 buffer[i] = num;
                 num = getNumber(reader);
                 read++;
@@ -230,6 +194,7 @@ public class Solution {
                 } else {
                     writerToSecondFile.write(buffer[index] + " ");
                 }
+                write++;
             }
         }
 
