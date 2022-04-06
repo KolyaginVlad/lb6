@@ -10,10 +10,9 @@ public class SolutionWithInfo {
     private final static String c = "c2.txt";
     private final static String d = "d2.txt";
     private final static String e = "e2.txt";
+    private static List<List<String>> steps = new ArrayList<>();
     
     public static List<List<String>> natural1() {
-
-        List<List<String>> steps = new ArrayList<>();
         try {
             steps.add(readFile(a));
             splitAndSort(3);
@@ -177,6 +176,8 @@ public class SolutionWithInfo {
         PrintWriter writerToFirstFile = new PrintWriter(new FileWriter(b));
         PrintWriter writerToSecondFile = new PrintWriter(new FileWriter(c));
         InputStream reader = new FileInputStream(a);
+        List<String> bufferList = new ArrayList<String>();
+        bufferList.add(" ");
 
         int num = getNumber(reader);
         
@@ -193,12 +194,16 @@ public class SolutionWithInfo {
             for(int index = 0; index < i; index++) {
                 if (direction) {
                     writerToFirstFile.write(buffer[index] + " ");
+                    bufferList.add(buffer[index] + "");
                 } else {
                     writerToSecondFile.write(buffer[index] + " ");
+                    bufferList.add(buffer[index] + "");
                 }
             }
             direction = !direction;
         }
+
+        steps.add(bufferList);
 
         writerToFirstFile.flush();
         writerToFirstFile.close();

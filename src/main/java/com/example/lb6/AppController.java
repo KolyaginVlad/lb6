@@ -138,19 +138,16 @@ public class AppController {
             generateFile(spinnerLength.getValue());
             infoTable.getItems().clear();
             ObservableList<InfoAboutSort> rows = FXCollections.observableArrayList();
-            
-            File file = new File("tmp.txt");
-            long fileSizeBytes = file.length();
 
-            int i1 = (int) (fileSizeBytes / 100);
+            int i1 = (int) (spinnerLength.getValue() / 100);
             int i2 = i1 * 10;
             for(int i = i1, k = 1; i <= i2; i += i1, k++){
-                long[] natural1 = Solution.natural1("b1b10/b" + k + ".txt", i);
                 try {
                     cloneFile("b" + k + ".txt");
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
+                long[] natural1 = Solution.natural1("b1b10/b" + k + ".txt", i);
                 rows.add(InfoAboutSort.create("Однофазная " + k, natural1));
                 infoTable.setItems(rows);
             }
