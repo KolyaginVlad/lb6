@@ -29,13 +29,13 @@ public class Solution {
         }
     }
 
-    public static long[] natural1(int sizeBuffer) {
+    public static long[] natural1(String fileName, int sizeBuffer) {
         long time = System.currentTimeMillis();
         countCompare = 0L;
         read = 0L;
         write = 0L;
         try {
-            splitAndSort(sizeBuffer);
+            splitAndSort(fileName,sizeBuffer);
             boolean direction = true;
             boolean flag = true;
             while (flag) {
@@ -48,9 +48,9 @@ public class Solution {
                 }
             }
             if (direction)
-                toOneFileNatural(b, c);
+                toOneFileNatural(fileName,b, c);
             else
-                toOneFileNatural(d, e);
+                toOneFileNatural(fileName,d, e);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -123,8 +123,8 @@ public class Solution {
         return counter > 2;
     }
 
-    private static void toOneFileNatural(String firstFile, String secondFile) throws IOException {
-        PrintWriter writer = new PrintWriter(new FileWriter(a));
+    private static void toOneFileNatural(String fileName, String firstFile, String secondFile) throws IOException {
+        PrintWriter writer = new PrintWriter(new FileWriter(fileName));
         InputStream readerFromFirstFile = new FileInputStream(firstFile);
         InputStream readerFromSecondFile = new FileInputStream(secondFile);
         int first = getNumber(readerFromFirstFile);
@@ -169,10 +169,10 @@ public class Solution {
         writer.close();
     }
 
-    private static void splitAndSort(int sizeBuffer) throws IOException {
+    private static void splitAndSort(String fileName, int sizeBuffer) throws IOException {
         PrintWriter writerToFirstFile = new PrintWriter(new FileWriter(b));
         PrintWriter writerToSecondFile = new PrintWriter(new FileWriter(c));
-        InputStream reader = new FileInputStream(a);
+        InputStream reader = new FileInputStream(fileName);
 
         int num = getNumber(reader);
         read++;
