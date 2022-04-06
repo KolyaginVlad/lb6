@@ -10,30 +10,14 @@ public class SolutionWithInfo {
     private final static String c = "c2.txt";
     private final static String d = "d2.txt";
     private final static String e = "e2.txt";
-    public static List<List<String>> natural2() {
-
-        List<List<String>> steps = new ArrayList<>();
-
-        try {
-            do {
-                steps.add(readFile(a));
-                naturalSortSplit();
-                steps.add(readFile(b));
-                steps.add(readFile(c));
-            } while (naturalSortCombine());
-            steps.add(readFile(a));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return steps;
-    }
-
+    
     public static List<List<String>> natural1() {
 
         List<List<String>> steps = new ArrayList<>();
         try {
             steps.add(readFile(a));
-            toTwoFilesNatural();
+            splitAndSort();
+            // toTwoFilesNatural();
             steps.add(readFile(b));
             steps.add(readFile(c));
             boolean direction = true;
@@ -62,81 +46,6 @@ public class SolutionWithInfo {
             e.printStackTrace();
         }
         return steps;
-    }
-
-    private static void naturalSortSplit() throws IOException {
-        PrintWriter writerToB = new PrintWriter(new FileWriter(b));
-        PrintWriter writerToC = new PrintWriter(new FileWriter(c));
-        InputStream readerA = new FileInputStream(a);
-        int num = getNumber(readerA);
-        boolean dir = true;
-        int last = -1;
-        while (num != -1) {
-            if (num < last) {
-                if (dir) {
-                    dir = false;
-                    writerToC.write(num + " ");
-                } else {
-                    dir = true;
-                    writerToB.write(num + " ");
-                }
-            } else {
-                if (dir) {
-                    writerToB.write(num + " ");
-                } else {
-                    writerToC.write(num + " ");
-                }
-            }
-            last = num;
-            num = getNumber(readerA);
-        }
-        writerToB.flush();
-        writerToB.close();
-        writerToC.flush();
-        writerToC.close();
-        readerA.close();
-    }
-
-    private static boolean naturalSortCombine() throws IOException {
-        PrintWriter writerToA = new PrintWriter(new FileWriter(a));
-        InputStream readerB = new FileInputStream(b);
-        InputStream readerC = new FileInputStream(c);
-        int first = getNumber(readerB);
-        int second = getNumber(readerC);
-        int lastFirst = -1;
-        int lastSecond = -1;
-        int counter = 0;
-        while (first != -1 || second != -1) {
-            while (first != -1 && second != -1 && first >= lastFirst && second >= lastSecond) {
-                if (first < second) {
-                    writerToA.write(first + " ");
-                    lastFirst = first;
-                    first = getNumber(readerB);
-                } else {
-                    writerToA.write(second + " ");
-                    lastSecond = second;
-                    second = getNumber(readerC);
-                }
-            }
-            counter++;
-            while (first != -1 && first >= lastFirst) {
-                writerToA.write(first + " ");
-                lastFirst = first;
-                first = getNumber(readerB);
-            }
-            while (second != -1 && second >= lastSecond) {
-                writerToA.write(second + " ");
-                lastSecond = second;
-                second = getNumber(readerC);
-            }
-            lastFirst = -1;
-            lastSecond = -1;
-        }
-        writerToA.flush();
-        writerToA.close();
-        readerB.close();
-        readerC.close();
-        return counter > 1;
     }
 
     private static boolean switchFilesNatural(String firstToRead, String secondToRead, String firstToWrite, String secondToWrite) throws IOException {
@@ -259,6 +168,40 @@ public class SolutionWithInfo {
             last = num;
             num = getNumber(reader);
         }
+        writerToFirstFile.flush();
+        writerToFirstFile.close();
+        writerToSecondFile.flush();
+        writerToSecondFile.close();
+    }
+
+    private static void splitAndSort() throws IOException {
+        PrintWriter writerToFirstFile = new PrintWriter(new FileWriter(b));
+        PrintWriter writerToSecondFile = new PrintWriter(new FileWriter(c));
+        InputStream reader = new FileInputStream(a);
+
+        int num = getNumber(reader);
+
+        int k = 3;
+        int[] buffer = new int[k];
+        boolean direction = true;
+        while (num != -1) {
+            int i = 0;
+            for(; i < k && num != -1; i++) {
+                buffer[i] = num;
+                num = getNumber(reader);
+            }
+            Solution.bubbleSort(buffer);
+
+            for(int index = 0; index < i; index++) {
+                if (direction) {
+                    writerToFirstFile.write(buffer[index] + " ");
+                } else {
+                    writerToSecondFile.write(buffer[index] + " ");
+                }
+            }
+            direction = !direction;
+        }
+
         writerToFirstFile.flush();
         writerToFirstFile.close();
         writerToSecondFile.flush();

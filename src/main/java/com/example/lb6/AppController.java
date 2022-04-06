@@ -61,9 +61,6 @@ public class AppController {
     private Button btn1;
 
     @FXML
-    private Button btn2;
-
-    @FXML
     private Button btnInfo;
 
     @FXML
@@ -80,9 +77,6 @@ public class AppController {
 
     @FXML
     private TableColumn<InfoAboutSort, Long> read;
-
-    @FXML
-    private TableView<List<String>> table2;
 
     @FXML
     private Spinner<Integer> spinnerLength;
@@ -124,11 +118,6 @@ public class AppController {
             fillTable(table1, SolutionWithInfo::natural1);
         });
 
-        btn2.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
-            generateFileForDemo();
-            fillTable(table2, SolutionWithInfo::natural2);
-        });
-
         btnInfo.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
             if (!isDigit(spinnerLength.getValue().toString())){
                 error1.setVisible(true);
@@ -138,11 +127,9 @@ public class AppController {
             generateFile(spinnerLength.getValue());
             infoTable.getItems().clear();
             ObservableList<InfoAboutSort> rows = FXCollections.observableArrayList();
-
-            long[] simple2 = Solution.natural2();
+            
             long[] natural1 = Solution.natural1();
-
-            rows.add(InfoAboutSort.create("Двухфазная", simple2));
+            
             rows.add(InfoAboutSort.create("Однофазная", natural1));
 
             infoTable.setItems(rows);
