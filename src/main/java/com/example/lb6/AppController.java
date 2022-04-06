@@ -95,9 +95,20 @@ public class AppController {
         error11.setVisible(false);
         error111.setVisible(false);
 
-        choose.setItems( FXCollections.observableArrayList("A", "A1", "Изначальный файл"));
+        ObservableList<String> listForChoose = FXCollections.observableArrayList("B1",
+                "B2",
+                "B3",
+                "B4",
+                "B5",
+                "B6",
+                "B7",
+                "B8",
+                "B9",
+                "B10",
+                "Изначальный файл");
+        choose.setItems( listForChoose);
 
-        choose1.setItems( FXCollections.observableArrayList("A", "A1", "Изначальный файл"));
+        choose1.setItems( listForChoose);
 
         spinnerLength.setEditable(true);
 
@@ -181,14 +192,38 @@ public class AppController {
             }
             error11.setVisible(false);
             switch (choose.getValue()){
-                case "A":
-                    out.setText(readFile("a.txt", start.getValue(), stop.getValue()));
+                case "B1":
+                    out.setText(readFile("b1b10/b1.txt", start.getValue(), stop.getValue()));
+                    break;
+                case "B2":
+                    out.setText(readFile("b1b10/b2.txt", start.getValue(), stop.getValue()));
+                    break;
+                case "B3":
+                    out.setText(readFile("b1b10/b3.txt", start.getValue(), stop.getValue()));
+                    break;
+                case "B4":
+                    out.setText(readFile("b1b10/b4.txt", start.getValue(), stop.getValue()));
+                    break;
+                case "B5":
+                    out.setText(readFile("b1b10/b5.txt", start.getValue(), stop.getValue()));
+                    break;
+                case "B6":
+                    out.setText(readFile("b1b10/b6.txt", start.getValue(), stop.getValue()));
+                    break;
+                case "B7":
+                    out.setText(readFile("b1b10/b7.txt", start.getValue(), stop.getValue()));
+                    break;
+                case "B8":
+                    out.setText(readFile("b1b10/b8.txt", start.getValue(), stop.getValue()));
+                    break;
+                case "B9":
+                    out.setText(readFile("b1b10/b9.txt", start.getValue(), stop.getValue()));
+                    break;
+                case "B10":
+                    out.setText(readFile("b1b10/b10.txt", start.getValue(), stop.getValue()));
                     break;
                 case "Изначальный файл":
                     out.setText(readFile("tmp.txt", start.getValue(), stop.getValue()));
-                    break;
-                case "A1":
-                    out.setText(readFile("a1.txt", start.getValue(), stop.getValue()));
                     break;
             }
         });
@@ -217,14 +252,38 @@ public class AppController {
             }
             error111.setVisible(false);
             switch (choose1.getValue()){
-                case "A":
-                    out1.setText(readFile("a.txt", start1.getValue(), stop1.getValue()));
+                case "B1":
+                    out1.setText(readFile("b1b10/b1.txt", start1.getValue(), stop1.getValue()));
+                    break;
+                case "B2":
+                    out1.setText(readFile("b1b10/b2.txt", start1.getValue(), stop1.getValue()));
+                    break;
+                case "B3":
+                    out1.setText(readFile("b1b10/b3.txt", start1.getValue(), stop1.getValue()));
+                    break;
+                case "B4":
+                    out1.setText(readFile("b1b10/b4.txt", start1.getValue(), stop1.getValue()));
+                    break;
+                case "B5":
+                    out1.setText(readFile("b1b10/b5.txt", start1.getValue(), stop1.getValue()));
+                    break;
+                case "B6":
+                    out1.setText(readFile("b1b10/b6.txt", start1.getValue(), stop1.getValue()));
+                    break;
+                case "B7":
+                    out1.setText(readFile("b1b10/b7.txt", start1.getValue(), stop1.getValue()));
+                    break;
+                case "B8":
+                    out1.setText(readFile("b1b10/b8.txt", start1.getValue(), stop1.getValue()));
+                    break;
+                case "B9":
+                    out1.setText(readFile("b1b10/b9.txt", start1.getValue(), stop1.getValue()));
+                    break;
+                case "B10":
+                    out1.setText(readFile("b1b10/b10.txt", start1.getValue(), stop1.getValue()));
                     break;
                 case "Изначальный файл":
                     out1.setText(readFile("tmp.txt", start1.getValue(), stop1.getValue()));
-                    break;
-                case "A1":
-                    out1.setText(readFile("a1.txt", start1.getValue(), stop1.getValue()));
                     break;
             }
         });
