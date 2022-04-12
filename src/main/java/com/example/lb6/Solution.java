@@ -1,220 +1,148 @@
 package com.example.lb6;
 
-import java.io.*;
-
 public class Solution {
-    private final static String a = "a1.txt";
-    private final static String b = "b1.txt";
-    private final static String c = "c1.txt";
-    private final static String d = "d1.txt";
-    private final static String e = "e1.txt";
-    static Long countCompare = 0L;
-    static Long read = 0L;
-    static Long write = 0L;
+    static long countCompare = 0L;
+    static long read = 0L;
+    static long write = 0L;
 
-    public static void bubbleSort(int[] numArray) {
-        int n = numArray.length;
-        int temp = 0;
-    
-        for (int i = 0; i < n; i++) {
-            for (int j = 1; j < (n - i); j++) {
-    
-                if (numArray[j - 1] > numArray[j]) {
-                    temp = numArray[j - 1];
-                    numArray[j - 1] = numArray[j];
-                    numArray[j] = temp;
-                    countCompare++;
-                }
-            }
-        }
-    }
-
-    public static long[] natural1(String fileName, int sizeBuffer) {
+    static long[] absorbSort(String fileName,long count, int n, int max) {
+        countCompare = 0;
+        read = 0;
+        write = 0;
+        //Сохраняем время
         long time = System.currentTimeMillis();
-        countCompare = 0L;
-        read = 0L;
-        write = 0L;
-        try {
-            splitAndSort(fileName,sizeBuffer);
-            boolean direction = true;
-            boolean flag = true;
-            while (flag) {
-                if (direction) {
-                    flag = switchFilesNatural(b, c, d, e);
-                    direction = false;
+        //Создаём класс-обёртку для взаимодействия с файлом "a"
+        FileHelper fileHelper = new FileHelper(fileName, max);
+        //Создаём буффер размера n
+        int[] buffer = new int[n];
+        //Заполняем буффер числами с конца файла
+        for (int i = 0; i < n; i++) {
+            buffer[i] = fileHelper.readNumber(count - 1 - i);
+            read++;
+        }
+        //Сортируем буффер
+        bubbleSort(buffer);
+        //Проверяем не больше ли размер буффера чем размер файла
+        if (n > count) {
+            //Если размер буффера больше, то поскольку он уже отсортирован, то записываем его в файл
+            //fileHelper.readNumber возвращет очень большое число, которое точно больше всех остальных чисел, если файл закончился и читать нечего
+            //Поэтому при сортировке эти несуществующие числа будут в конце буффера.
+            //Записываем количество чисел, которое изначально было в файле
+            for (int i = 0; i < count; i++) {
+                fileHelper.writeNumber(i, buffer[i]);
+                write++;
+            }
+            //Освобождаем ресурсы
+            fileHelper.close();
+            //Возвращаем время т.к. сортировка окончена
+            return new long[]{countCompare, read, write, System.currentTimeMillis() - time};
+        }
+        //Если буффер всё же меньше размера файла, то записываем его на прежнее место, только в отсортированном виде
+        for (int i = 0; i < n; i++) {
+            fileHelper.writeNumber(count - n + i, buffer[i]);
+            write++;
+        }
+        //Количество прошедших повторений записи в буфер и сортировки. Нужно для определения положения чтения и записи
+        int x = 1;
+        //Цикл пока количество итераций меньше либо равно числу итераций, которое должно пройти. -1 нужен для учёта того, что после цикла придётся сортировать элементы, которые не занимают полностью буффер
+        while (x <= count / n - 1) {
+            //Заполняем буффер
+            for (int i = 0; i < n; i++) {
+                /*Как получили число в скобках:
+                Число элементов count
+                Отчёт элементов с 0, поэтому последний индекс числа в файле count -1
+                n - размер буфера, x - количество итераций. При перемножении дают количество чисел, которые уже были отсортированы
+                i - вычитание индекса в буффере
+                 */
+                buffer[i] = fileHelper.readNumber(count - 1 - (long) n * x - i);
+                read++;
+            }
+            //Сортируем буффер
+            bubbleSort(buffer);
+            //Переменные для определения сколько чисел уже было записано из буффера и из файла
+            int kNums = 0;
+            int kFiles = 0;
+            //Повторяем цикл столько раз, сколько отсортированных элементов у нас уже есть + размер буффера
+            for (int i = 0; i < n + n * x; i++) {
+                //Если элемент буффера меньше элемента файла, то пишем из буффера,  иначе из файла
+                read++;
+                if (buffer[kNums] <= fileHelper.readNumber(count - (long) n * x + kFiles)) {
+                    fileHelper.writeNumber(count - (long) n * (x + 1) + i, buffer[kNums]);
+                    write++;
+                    //Прибавляем единицу к счётчику чисел, которые добавили из буффера
+                    kNums++;
+                    //Если все числа из буффера добавлены в файл, то значит, что остальная часть отсортирована и можно завершать цикл
+                    if (kNums == n) break;
                 } else {
-                    flag = switchFilesNatural(d, e, b, c);
-                    direction = true;
+                    /*Как получили число в скобках:
+                    Число элементов count
+                    -1 не нужен т.к. положение числа настраивается с помощью i
+                    n - размер буфера, x+1 - количество итераций. При перемножении дают количество чисел, которые уже были отсортированы
+                    i - прибавление индекса
+                    */
+                    write++;
+                    fileHelper.writeNumber(count - (long) n * (x + 1) + i, fileHelper.readNumber(count - (long) n * x + kFiles));
+                    //Прибавляем единицу к переменной счётчика цифр, которые добавлены из файла
+                    kFiles++;
                 }
             }
-            if (direction)
-                toOneFileNatural(fileName,b, c);
-            else
-                toOneFileNatural(fileName,d, e);
-        } catch (IOException e) {
-            e.printStackTrace();
+            //Прибавляем итерацию после её завершения
+            x++;
         }
+        //Количество элементов, которые останутся после сортировки, но не смогут полностью заполнить буффер. 10 по 3, останется 1 элемент
+        int lost = (int) (count % n);
+        if (lost != 0) {
+            //Заполняем буффер этими элементами
+            for (int i = 0; i < lost; i++) {
+                buffer[i] = fileHelper.readNumber(i);
+                read++;
+            }
+            //Заполняем буффер "большими числами", чтобы при сортировке они ушли в конец и не мешались
+            for (int i = lost; i < n; i++) {
+                buffer[i] = Integer.MAX_VALUE;
+            }
+            //Сортируем
+            bubbleSort(buffer);
+            //Переменные для определения сколько чисел уже было записано из буффера и из файла
+            int kNums = 0;
+            int kFiles = 0;
+            //Проходим по всему файлу
+            for (int i = 0; i < count - 1; i++) {
+                //Сравниваем числа из буффера с числами из файла и записываем
+                read++;
+                if (buffer[kNums] <= fileHelper.readNumber(lost + kFiles)) {
+                    fileHelper.writeNumber(i, buffer[kNums]);
+                    kNums++;
+                    if (kNums == lost) break;
+                } else {
+                    fileHelper.writeNumber(i, fileHelper.readNumber(lost + kFiles));
+                    kFiles++;
+                }
+                write++;
+            }
+        }
+        //Освобождаем ресурсы
+        fileHelper.close();
         return new long[]{countCompare, read, write, System.currentTimeMillis() - time};
     }
 
-    private static boolean switchFilesNatural(String firstToRead, String secondToRead, String firstToWrite, String secondToWrite) throws IOException {
-        PrintWriter writerToFirst = new PrintWriter(new FileWriter(firstToWrite));
-        PrintWriter writerToSecond = new PrintWriter(new FileWriter(secondToWrite));
-        InputStream readerFromFirst = new FileInputStream(firstToRead);
-        InputStream readerFromSecond = new FileInputStream(secondToRead);
-        boolean direction = true;
-        int counter = 0;
-        int first = getNumber(readerFromFirst);
-        int second = getNumber(readerFromSecond);
-        int lastFirst = -1;
-        int lastSecond = -1;
-        read+=2;
-        while (first != -1 || second != -1) {
-            while (first != -1 && second != -1 && first >= lastFirst && second >= lastSecond) {
+    public static void bubbleSort(int[] arr) {
+        int last = arr.length - 1;
+
+        while (last > 0) {
+            countCompare++;
+            int barrier = 0;
+            for (int i = 0; i < last; i++) {
                 countCompare++;
-                if (first < second) {
-                    if (direction) {
-                        writerToFirst.write(first + " ");
-                    } else {
-                        writerToSecond.write(first + " ");
-                    }
-                    lastFirst = first;
-                    first = getNumber(readerFromFirst);
-                } else {
-                    if (direction) {
-                        writerToFirst.write(second + " ");
-                    } else {
-                        writerToSecond.write(second + " ");
-                    }
-                    lastSecond = second;
-                    second = getNumber(readerFromSecond);
+                if (arr[i] > arr[i + 1]) {
+                    countCompare++;
+                    int tmp = arr[i];
+                    arr[i] = arr[i + 1];
+                    arr[i + 1] = tmp;
+                    barrier = i;
                 }
-                read++;
-                write++;
             }
-            while (first != -1 && first >= lastFirst) {
-                if (direction)
-                    writerToFirst.write(first + " ");
-                else writerToSecond.write(first + " ");
-                lastFirst = first;
-                first = getNumber(readerFromFirst);
-                read++;
-                write++;
-            }
-            while (second != -1 && second >= lastSecond) {
-                if (direction)
-                    writerToFirst.write(second + " ");
-                else writerToSecond.write(second + " ");
-                lastSecond = second;
-                second = getNumber(readerFromSecond);
-                read++;
-                write++;
-            }
-            lastFirst = -1;
-            lastSecond = -1;
-            read++;
-            direction = !direction;
-            counter++;
+            last = barrier;
         }
-        writerToFirst.flush();
-        writerToSecond.flush();
-        writerToFirst.close();
-        writerToSecond.close();
-        return counter > 2;
-    }
-
-    private static void toOneFileNatural(String fileName, String firstFile, String secondFile) throws IOException {
-        PrintWriter writer = new PrintWriter(new FileWriter(fileName));
-        InputStream readerFromFirstFile = new FileInputStream(firstFile);
-        InputStream readerFromSecondFile = new FileInputStream(secondFile);
-        int first = getNumber(readerFromFirstFile);
-        int second = getNumber(readerFromSecondFile);
-        int lastFirst = -1;
-        int lastSecond = -1;
-        read+=2;
-        while (first != -1 || second != -1) {
-            while (first != -1 && second != -1 && first >= lastFirst && second >= lastSecond) {
-                countCompare++;
-                if (first < second) {
-                    writer.write(first + " ");
-                    lastFirst = first;
-                    first = getNumber(readerFromFirstFile);
-                } else {
-                    writer.write(second + " ");
-                    lastSecond = second;
-                    second = getNumber(readerFromSecondFile);
-                }
-                read++;
-                write++;
-            }
-            while (first != -1 && first >= lastFirst) {
-                writer.write(first + " ");
-                lastFirst = first;
-                first = getNumber(readerFromFirstFile);
-                read++;
-                write++;
-            }
-            while (second != -1 && second >= lastSecond) {
-                writer.write(second + " ");
-                lastSecond = second;
-                second = getNumber(readerFromSecondFile);
-                read++;
-                write++;
-            }
-            lastSecond = -1;
-            lastFirst = -1;
-            read+=2;
-        }
-        writer.flush();
-        writer.close();
-    }
-
-    private static void splitAndSort(String fileName, int sizeBuffer) throws IOException {
-        PrintWriter writerToFirstFile = new PrintWriter(new FileWriter(b));
-        PrintWriter writerToSecondFile = new PrintWriter(new FileWriter(c));
-        InputStream reader = new FileInputStream(fileName);
-
-        int num = getNumber(reader);
-        read++;
-
-        int[] buffer = new int[sizeBuffer];
-        boolean direction = true;
-        while (num != -1) {
-            int i = 0;
-            for(; i < sizeBuffer && num != -1; i++) {
-                buffer[i] = num;
-                num = getNumber(reader);
-                read++;
-            }
-            bubbleSort(buffer);
-
-            for(int index = 0; index < i; index++) {
-                if (direction) {
-                    writerToFirstFile.write(buffer[index] + " ");
-                } else {
-                    writerToSecondFile.write(buffer[index] + " ");
-                }
-                write++;
-            }
-        }
-
-        writerToFirstFile.flush();
-        writerToFirstFile.close();
-        writerToSecondFile.flush();
-        writerToSecondFile.close();
-    }
-
-    private static int getNumber(InputStream reader) throws IOException {
-        int character;
-        StringBuilder currentElem = new StringBuilder();
-        while (reader.available() != 0) {
-            character = reader.read();
-            if (character != 32) {
-                currentElem.append((char) character);
-            } else {
-                return Integer.parseInt(currentElem.toString());
-            }
-        }
-        return -1;
     }
 }

@@ -29,7 +29,7 @@ public class AppController {
 
     @FXML
     private Button show1;
-    
+
     @FXML
     private Label error1;
 
@@ -106,9 +106,9 @@ public class AppController {
                 "B9",
                 "B10",
                 "Изначальный файл");
-        choose.setItems( listForChoose);
+        choose.setItems(listForChoose);
 
-        choose1.setItems( listForChoose);
+        choose1.setItems(listForChoose);
 
         spinnerLength.setEditable(true);
 
@@ -126,11 +126,11 @@ public class AppController {
 
         btn1.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
             generateFileForDemo();
-            fillTable(table1, SolutionWithInfo::natural1);
+            fillTable(table1, SolutionWithInfo::absorb);
         });
 
         btnInfo.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
-            if (!isDigit(spinnerLength.getValue().toString())){
+            if (!isDigit(spinnerLength.getValue().toString())) {
                 error1.setVisible(true);
                 return;
             }
@@ -138,20 +138,17 @@ public class AppController {
             generateFile(spinnerLength.getValue());
             infoTable.getItems().clear();
             ObservableList<InfoAboutSort> rows = FXCollections.observableArrayList();
-            
-            File file = new File("tmp.txt");
-            long fileSizeBytes = file.length();
 
-            int i1 = (int) (fileSizeBytes / 100);
+            int i1 = spinnerLength.getValue()/100;
             int i2 = i1 * 10;
-            for(int i = i1, k = 1; i <= i2; i += i1, k++){
-                long[] natural1 = Solution.natural1("b1b10/b" + k + ".txt", i);
+            for (int i = i1, k = 1; i <= i2; i += i1, k++) {
                 try {
                     cloneFile("b" + k + ".txt");
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
-                rows.add(InfoAboutSort.create("Однофазная " + k, natural1));
+                long[] absorb = Solution.absorbSort("b1b10/b" + k + ".txt", spinnerLength.getValue(), i, 10000);
+                rows.add(InfoAboutSort.create("Поглощение " + k, absorb));
                 infoTable.setItems(rows);
             }
 
@@ -167,8 +164,8 @@ public class AppController {
             // rows.add(InfoAboutSort.create("Однофазная " + 70, natural1));
             // infoTable.setItems(rows);
         });
-        
-        show.addEventHandler(MouseEvent.MOUSE_CLICKED, e ->{
+
+        show.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
             out.setText("");
             try {
                 if (!isDigit(stop.getValue().toString()) || !isDigit(start.getValue().toString())) {
@@ -176,22 +173,22 @@ public class AppController {
                     error11.setVisible(true);
                     return;
                 }
-            }catch (NumberFormatException ee){
+            } catch (NumberFormatException ee) {
                 error11.setText("Введите целые положительные числа");
                 error11.setVisible(true);
             }
-            if (start.getValue()==0|| stop.getValue()==0){
+            if (start.getValue() == 0 || stop.getValue() == 0) {
                 error11.setText("Числа должны быть больше 0");
                 error11.setVisible(true);
                 return;
             }
-            if (start.getValue()>= stop.getValue()){
+            if (start.getValue() >= stop.getValue()) {
                 error11.setText("Первое число должно быть меньше второго");
                 error11.setVisible(true);
                 return;
             }
             error11.setVisible(false);
-            switch (choose.getValue()){
+            switch (choose.getValue()) {
                 case "B1":
                     out.setText(readFile("b1b10/b1.txt", start.getValue(), stop.getValue()));
                     break;
@@ -228,7 +225,7 @@ public class AppController {
             }
         });
 
-        show1.addEventHandler(MouseEvent.MOUSE_CLICKED, e ->{
+        show1.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
             out1.setText("");
             try {
                 if (!isDigit(stop1.getValue().toString()) || !isDigit(start1.getValue().toString())) {
@@ -236,22 +233,22 @@ public class AppController {
                     error111.setVisible(true);
                     return;
                 }
-            }catch (NumberFormatException ee){
+            } catch (NumberFormatException ee) {
                 error111.setText("Введите целые положительные числа");
                 error111.setVisible(true);
             }
-            if (start1.getValue()==0|| stop1.getValue()==0){
+            if (start1.getValue() == 0 || stop1.getValue() == 0) {
                 error111.setText("Числа должны быть больше 0");
                 error111.setVisible(true);
                 return;
             }
-            if (start1.getValue()>= stop1.getValue()){
+            if (start1.getValue() >= stop1.getValue()) {
                 error11.setText("Первое число должно быть меньше второго");
                 error11.setVisible(true);
                 return;
             }
             error111.setVisible(false);
-            switch (choose1.getValue()){
+            switch (choose1.getValue()) {
                 case "B1":
                     out1.setText(readFile("b1b10/b1.txt", start1.getValue(), stop1.getValue()));
                     break;
@@ -289,7 +286,7 @@ public class AppController {
         });
     }
 
-    private String readFile(String name, int start, int stop){
+    private String readFile(String name, int start, int stop) {
         try {
             InputStream reader = new FileInputStream(name);
             for (int i = 1; i < start; i++) {
@@ -297,15 +294,17 @@ public class AppController {
             }
             StringBuilder stringBuilder = new StringBuilder();
             for (int i = 0; i <= stop - start; i++) {
-                int a=  getNumber(reader);
-                if (a!= -1)
-                stringBuilder.append(a+", ");
+                int a = getNumber(reader);
+                if (a != -1)
+                    stringBuilder.append(a + ", ");
             }
-            if (stringBuilder.length()>0){
-                stringBuilder.replace(stringBuilder.length()-2, stringBuilder.length(), "");
+            if (stringBuilder.length() > 0) {
+                stringBuilder.replace(stringBuilder.length() - 2, stringBuilder.length(), "");
             }
             return stringBuilder.toString();
-        }catch (Exception e){return "";}
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     private void fillTable(TableView<List<String>> table, SortMethod method) {
@@ -329,7 +328,7 @@ public class AppController {
     private void generateFileForDemo() {
         try (FileWriter writer = new FileWriter("a2.txt")) {
             for (int i = 0; i < 15; i++) {
-                writer.write(random.nextInt(100) + " ");
+                writer.write(String.format("%02d", random.nextInt(100)) + " ");
             }
             writer.flush();
         } catch (IOException e) {
@@ -340,7 +339,7 @@ public class AppController {
     private void generateFile(long count) {
         try (FileWriter writer = new FileWriter("tmp.txt")) {
             for (int i = 0; i < count; i++) {
-                writer.write(random.nextInt(10000) + " ");
+                writer.write(String.format("%04d", random.nextInt(10000)) + " ");
             }
             writer.flush();
             cloneFile();
@@ -348,14 +347,15 @@ public class AppController {
             e.printStackTrace();
         }
     }
+
     private void cloneFile() throws IOException {
         PrintWriter writerToA = new PrintWriter(new FileWriter("a.txt"));
         PrintWriter writerToA1 = new PrintWriter(new FileWriter("a1.txt"));
         InputStream reader = new FileInputStream("tmp.txt");
         int num = getNumber(reader);
         while (num != -1) {
-            writerToA.write( num +" ");
-            writerToA1.write( num +" ");
+            writerToA.write(num + " ");
+            writerToA1.write(num + " ");
             num = getNumber(reader);
         }
         writerToA.flush();
@@ -370,7 +370,7 @@ public class AppController {
         InputStream reader = new FileInputStream("tmp.txt");
         int num = getNumber(reader);
         while (num != -1) {
-            writerToFile.write( num +" ");
+            writerToFile.write(String.format("%04d", num) + " ");
             num = getNumber(reader);
         }
         writerToFile.flush();
@@ -391,9 +391,10 @@ public class AppController {
         }
         return -1;
     }
-    private boolean isDigit(String str){
+
+    private boolean isDigit(String str) {
         for (int i = 0; i < str.length(); i++) {
-            if(!Character.isDigit(str.charAt(i))) return false;
+            if (!Character.isDigit(str.charAt(i))) return false;
         }
         return true;
     }
